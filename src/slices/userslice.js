@@ -12,7 +12,6 @@ export const getUser=createAsyncThunk(
            }
 
         }catch(error){
-            console.log("eroor",error.message)
             return error.message
         }
     }
@@ -36,6 +35,21 @@ export const createUser=createAsyncThunk(
     }
 )
 
+
+// delete user
+export const deleteUser=createAsyncThunk(
+    "user/deleteUser",async(id)=>{
+        try{
+            const res=await api.delete(`/user/${id}`)
+            if(res.status===200){
+                return id
+            }
+           
+        }catch(error){
+            return error
+        }
+    }
+)
 // slice of the user
 const userSlice=createSlice({
     name:"user",
@@ -52,8 +66,6 @@ const userSlice=createSlice({
             state.isLoading=true
         })
         .addCase(getUser.fulfilled,(state,action)=>{
-            console.log("dafag")
-            console.log(action.payload,"payload")
             state.userData=action.payload
             state.isLoading=false
         })
@@ -74,6 +86,17 @@ const userSlice=createSlice({
             state.isLoading=false
             state.error=action.payload
             console.log(action.payload,"error in create user")
+        })
+        .addCase(deleteUser.pending,(state,action)=>{
+            state.isLoading=true
+        })
+        .addCase(deleteUser.fulfilled,(state,action)=>{
+            state.isLoading=false
+           state.userData=state.userData.filter((user)=>user.id!==action.payload)
+        })
+        .addCase(deleteUser.rejected,(state,action)=>{
+            state.isLoading=false
+            state.error=action.payload
         })
 
     }
